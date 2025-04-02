@@ -120,7 +120,8 @@ def accelerate(  # noqa C901
     cache_dir = CACHE_DIR
 
     env_config = EnvConfig(token=TOKEN, cache_dir=cache_dir)
-
+    
+    breakpoint()
     evaluation_tracker = EvaluationTracker(
         output_dir=output_dir,
         save_details=save_details,
@@ -129,6 +130,7 @@ def accelerate(  # noqa C901
         public=public_run,
         hub_results_org=results_org,
     )
+    breakpoint()
     pipeline_params = PipelineParameters(
         launcher_type=ParallelismManager.ACCELERATE,
         env_config=env_config,
@@ -143,6 +145,7 @@ def accelerate(  # noqa C901
         load_responses_from_details_date_id=load_responses_from_details_date_id,
     )
 
+    breakpoint()
     # TODO (nathan): better handling of model_args
     if model_args.endswith(".yaml"):
         with open(model_args, "r") as f:
@@ -195,19 +198,20 @@ def accelerate(  # noqa C901
         model_args_dict["compile"] = bool(model_args_dict["compile"]) if "compile" in model_args_dict else False
         model_config = TransformersModelConfig(**model_args_dict)
 
+    breakpoint()
     pipeline = Pipeline(
         tasks=tasks,
         pipeline_parameters=pipeline_params,
         evaluation_tracker=evaluation_tracker,
         model_config=model_config,
     )
-
+    breakpoint()
     pipeline.evaluate()
-
+    breakpoint()
     pipeline.show_results()
-
+    breakpoint()
     results = pipeline.get_results()
-
+    breakpoint()
     pipeline.save_and_push_results()
 
     return results
