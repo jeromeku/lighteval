@@ -865,7 +865,7 @@ class TransformersModel(LightevalModel):
                     max_length=max_context_continuation_size_allowed,  # we always allow minimum one token of generation
                     add_special_tokens=self.add_special_tokens,
                 ).to(self.device)
-
+                breakpoint()
                 # The main question for this step is the following:
                 # Would we rather truncate the prompt to allow generation to go to max_new_tokens, at the risk
                 # of losing some meaning, or have some generations that are exceedingly short?

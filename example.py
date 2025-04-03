@@ -7,6 +7,7 @@ from lighteval.logging.evaluation_tracker import EvaluationTracker
 from lighteval.models.transformers.transformers_model import TransformersModelConfig
 from lighteval.models.vllm.vllm_model import VLLMModelConfig
 from lighteval.pipeline import ParallelismManager, Pipeline, PipelineParameters
+from lighteval.tasks.requests import Request, RequestType
 from lighteval.utils.imports import is_accelerate_available
 from lighteval.utils.utils import EnvConfig
 from lighteval.tasks.registry import Registry
@@ -182,7 +183,12 @@ def main(args):
             evaluation_tracker=evaluation_tracker,
             model_config=model_config,
         )
-
+        requests: dict[RequestType, list[Request]] = pipeline.requests
+        req_type, reqs = next(iter(requests.items()))
+        for req_type, reqs in requests.items():
+            print(f"Request type: {req_type} {len(reqs)}")
+            print(f"-> sample request: {reqs[0]}")
+        
     with timer_context("Pipeline.evaluate"):
         pipeline.evaluate()
 
