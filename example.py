@@ -119,7 +119,7 @@ def create_save_dir(args) -> str:
     """
     model_name = args.model.split("/")[-1]
     launcher_type = args.launcher_type
-    args.save_dir = os.path.join(args.save_dir, model_name, launcher_type)
+    args.save_dir = os.path.join(model_name, launcher_type)
     if not os.path.exists(args.save_dir):
         os.makedirs(args.save_dir, exist_ok=True)
     print(f"Save dir: {args.save_dir}")
@@ -167,10 +167,12 @@ def main(args):
 
     with timer_context("Registry"):
         registry = Registry()
-
-    tasks = registry.expand_task_definition(args.task)
-    num_tasks = args.num_tasks if args.num_tasks is not None else len(tasks)
-    tasks = tasks[:num_tasks]
+    all_tasks = []
+    for task in args.tasks:
+        tasks = registry.expand_task_definition(task)
+        all_tasks.extend(tasks)
+    num_tasks = args.num_tasks if args.num_tasks is not None else len(all_tasks)
+    tasks = all_tasks[:num_tasks]
 
     print("Running tasks: ", tasks)
     task_def = create_task_def(tasks, few_shot_k=args.num_few_shot_k, truncate_few_shot=args.truncate_few_shot)
@@ -204,7 +206,9 @@ def main(args):
 
 if __name__ == "__main__":
     args = argparse.ArgumentParser()
-    args.add_argument("--task", type=str, default="helm|mmlu")
+    # args.add_argument("--suite", type=str, default="helm")
+    # args.add_argument("--benchmark", nargs="+", default="mmlu")
+    args.add_argument("--tasks", nargs="+", default="helm|mmlu")
     args.add_argument("--model", type=str, default="Qwen/Qwen2.5-1.5B-Instruct")
     args.add_argument("--dtype", type=str, default="bfloat16")
     args.add_argument("--use_chat_template", type=bool, default=True)
@@ -215,7 +219,7 @@ if __name__ == "__main__":
     args.add_argument("--num_few_shot_k", type=int, default=5)
     args.add_argument("--truncate_few_shot", type=bool, default=True)
     args.add_argument("--dataset_loading_processes", type=int, default=None)
-    args.add_argument("--save_dir", type=str, default="./eval_results")
+    args.add_argument("--save_dir", type=str, default=None)
     args.add_argument("--push_to_hub", action="store_true")
     args.add_argument("--cache_dir", type=str, default=os.getenv("HF_HOME"))
     args.add_argument("--log_level", type=str, default="INFO", choices=["INFO", "DEBUG", "WARNING", "ERROR", "CRITICAL"])
@@ -223,6 +227,6 @@ if __name__ == "__main__":
     log_level = getattr(logging, args.log_level)
     set_verbosity(log_level)
     args.dtype = getattr(torch, args.dtype)
-    args = create_save_dir(args)
+    args.save_dir = args.save_dir or create_save_dir(args)
     print(f"Args:\n{args}")
     main(args)
