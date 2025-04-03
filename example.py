@@ -119,11 +119,11 @@ def create_save_dir(args) -> str:
     """
     model_name = args.model.split("/")[-1]
     launcher_type = args.launcher_type
-    args.save_dir = os.path.join(model_name, launcher_type)
-    if not os.path.exists(args.save_dir):
-        os.makedirs(args.save_dir, exist_ok=True)
-    print(f"Save dir: {args.save_dir}")
-    return args
+    save_dir = os.path.join(model_name, launcher_type)
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir, exist_ok=True)
+    print(f"Save dir: {save_dir}")
+    return save_dir
 
 @timer_context("Main")
 def main(args):
@@ -205,25 +205,25 @@ def main(args):
 
 
 if __name__ == "__main__":
-    args = argparse.ArgumentParser()
-    # args.add_argument("--suite", type=str, default="helm")
-    # args.add_argument("--benchmark", nargs="+", default="mmlu")
-    args.add_argument("--tasks", nargs="+", default="helm|mmlu")
-    args.add_argument("--model", type=str, default="Qwen/Qwen2.5-1.5B-Instruct")
-    args.add_argument("--dtype", type=str, default="bfloat16")
-    args.add_argument("--use_chat_template", type=bool, default=True)
-    args.add_argument("--launcher_type", type=str, default="accelerate")
-    args.add_argument("--override_batch_size", type=int, default=0)
-    args.add_argument("--max_samples", type=int, default=None)
-    args.add_argument("--num_tasks", type=int, default=None)
-    args.add_argument("--num_few_shot_k", type=int, default=5)
-    args.add_argument("--truncate_few_shot", type=bool, default=True)
-    args.add_argument("--dataset_loading_processes", type=int, default=None)
-    args.add_argument("--save_dir", type=str, default=None)
-    args.add_argument("--push_to_hub", action="store_true")
-    args.add_argument("--cache_dir", type=str, default=os.getenv("HF_HOME"))
-    args.add_argument("--log_level", type=str, default="INFO", choices=["INFO", "DEBUG", "WARNING", "ERROR", "CRITICAL"])
-    args = args.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--tasks", nargs="+", default=["helm|mmlu"], help="Tasks to run in format suite|benchmark")
+    parser.add_argument("--model", type=str, default="Qwen/Qwen2.5-1.5B-Instruct")
+    parser.add_argument("--dtype", type=str, default="bfloat16")
+    parser.add_argument("--use_chat_template", action="store_true")
+    parser.add_argument("--launcher_type", type=str, default="accelerate")
+    parser.add_argument("--override_batch_size", type=int, default=0)
+    parser.add_argument("--max_samples", type=int, default=None)
+    parser.add_argument("--num_tasks", type=int, default=None)
+    parser.add_argument("--num_few_shot_k", type=int, default=5)
+    parser.add_argument("--truncate_few_shot", type=bool, default=True)
+    parser.add_argument("--dataset_loading_processes", type=int, default=None)
+    parser.add_argument("--save_dir", type=str, default=None)
+    parser.add_argument("--push_to_hub", action="store_true")
+    parser.add_argument("--cache_dir", type=str, default=os.getenv("HF_HOME"))
+    parser.add_argument("--log_level", type=str, default="INFO", 
+                       choices=["INFO", "DEBUG", "WARNING", "ERROR", "CRITICAL"])
+    
+    args = parser.parse_args()
     log_level = getattr(logging, args.log_level)
     set_verbosity(log_level)
     args.dtype = getattr(torch, args.dtype)

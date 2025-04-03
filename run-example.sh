@@ -3,9 +3,10 @@ set -euo pipefail
 
 PROFILE=${1:-"false"}
 
-if [ "$PROFILE" = "true" ]; then
-    EXEC="pyinstrument -r html -o profile.html -t"
-    # "python -m cProfile -o profile.prof"
+if [ "$PROFILE" = "--profile" ]; then
+    #EXEC="pyinstrument -r html -t --color-o profile.html"
+#    EXEC="python -m cProfile -o profile.prof"
+    EXEC="scalene --no-browser --cli" #--reduced-profile  --no-browser
 else
     EXEC="python"
 fi
