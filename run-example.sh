@@ -13,21 +13,24 @@ fi
 
 MAX_SAMPLES=10
 NUM_TASKS=2
-MODEL="Qwen/Qwen2.5-1.5B-Instruct"
+MODEL="meta-llama/Llama-3.2-1B-Instruct"
+
 # Split Model into two parts
 MODEL_NAME=$(echo $MODEL | cut -d'/' -f2)
 
-SUITE="helm"
-BENCHMARK="mmlu"
+SUITE="original"
+BENCHMARK="mmlu:high_school_geography"
 # Quote the task string to prevent bash from interpreting the |
 TASK="${SUITE}|${BENCHMARK}"
 DTYPE="bfloat16"
 LAUNCHER_TYPE="accelerate"
-NUM_FEW_SHOT_K=5
-TRUNCATE_FEW_SHOT=True
+NUM_FEW_SHOT_K=0
+TRUNCATE_FEW_SHOT=False
 USE_CHAT_TEMPLATE=False
 OVERRIDE_BATCH_SIZE=0 # 0 means use the default batch size
 LOG_LEVEL="INFO"
+PUSH_TO_HUB=True
+HUB_ARGS="--hub_results_org=jeromeku"
 
 SAVE_DIR="./eval_results"
 SAVE_DIR=$SAVE_DIR/$SUITE/$BENCHMARK/$MODEL_NAME/$LAUNCHER_TYPE
@@ -46,6 +49,10 @@ CMD="$EXEC example.py \
     --truncate_few_shot \"$TRUNCATE_FEW_SHOT\" \
     --log_level \"$LOG_LEVEL\" \
     --save_dir \"$SAVE_DIR\""
+
+if [ "$PUSH_TO_HUB" = "True" ]; then
+    CMD="$CMD --push_to_hub $HUB_ARGS"
+fi
 
 if [ "$USE_CHAT_TEMPLATE" = "True" ]; then
     CMD="$CMD --use_chat_template"

@@ -132,6 +132,7 @@ def main(args):
             output_dir=args.save_dir,
             save_details=True,
             push_to_hub=args.push_to_hub,
+            hub_results_org=args.hub_results_org,
         )
 
     with timer_context("PipelineParameters"):
@@ -219,6 +220,7 @@ if __name__ == "__main__":
     parser.add_argument("--dataset_loading_processes", type=int, default=None)
     parser.add_argument("--save_dir", type=str, default=None)
     parser.add_argument("--push_to_hub", action="store_true")
+    parser.add_argument("--hub_results_org", type=str, default=None)
     parser.add_argument("--cache_dir", type=str, default=os.getenv("HF_HOME"))
     parser.add_argument("--log_level", type=str, default="INFO", 
                        choices=["INFO", "DEBUG", "WARNING", "ERROR", "CRITICAL"])
